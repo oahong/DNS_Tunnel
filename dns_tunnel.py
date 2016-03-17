@@ -18,8 +18,8 @@ from cryptography.hazmat.backends import default_backend
 MODE = 'client'
 DNS_SERVER = ('8.8.8.8', 53)
 SERVER_ADDR = ('1.2.3.4', 1234)
-KEY = base64.urlsafe_b64decode(
-    b'ZmVlbGluZyBhd2Vzb21lIGZ1Y2tpbmcgdGhlIEdGVwo=')
+B64_KEY = b'ZmVlbGluZyBhd2Vzb21lIGZ1Y2tpbmcgdGhlIEdGVwo='
+KEY = base64.urlsafe_b64decode(B64_KEY)
 
 
 def encrypt(data):
