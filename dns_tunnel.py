@@ -136,6 +136,7 @@ def main():
     args = parser.parse_args(sys.argv[1:])
     if not bool(args.server_addr) ^ args.server_mode:
         parser.print_help()
+        sys.exit(0)
     if args.server_mode:
         MODE = 'server'
     else:
