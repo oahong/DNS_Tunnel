@@ -81,6 +81,10 @@ class SendProtocol(asyncio.DatagramProtocol):
 
     def connection_made(self, transport):
         self.transport = transport
+        # I couldn't find a good way to close the socket,
+        # so have to schedule a call to do that
+        loop = asyncio.get_event_loop()
+        loop.call_later(5, self.transport.close)
         if MODE == 'client':
             self.transport.sendto(encrypt(self.query_data))
             logging.info('querying ' + byte_2_domain(self.query_data[12:]))
@@ -97,7 +101,6 @@ class SendProtocol(asyncio.DatagramProtocol):
         else:
             self.listen_transport.sendto(encrypt(data), self.client_addr)
             logging.info('result sent: ' + byte_2_domain(data[12:]))
-        self.transport.close()
 
 
 class ListenProtocol(asyncio.DatagramProtocol):
