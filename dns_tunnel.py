@@ -59,17 +59,20 @@ def byte_2_domain(data):
     # >>> struct.unpack('!6c', b'\x01\x74\x02\x63\x6e\x00')
     # (b'\x01', b't', b'\x02', b'c', b'n', b'\x00')
     domain = b''
-    length = struct.unpack('!B', data[0:1])[0]
-    i = 1
-    while data[i:i+1] != b'\x00':
-        if length == 0:
-            domain += b'.'
-            length = struct.unpack('!B', data[i:i+1])[0]
-        else:
-            domain += data[i:i+1]
-            length -= 1
-        i += 1
-    return domain.decode('utf-8')
+    try:
+        length = struct.unpack('!B', data[0:1])[0]
+        i = 1
+        while data[i:i+1] != b'\x00':
+            if length == 0:
+                domain += b'.'
+                length = struct.unpack('!B', data[i:i+1])[0]
+            else:
+                domain += data[i:i+1]
+                length -= 1
+            i += 1
+        return domain.decode('utf-8')
+    except struct.error:
+        return 'unknown domain'
 
 
 class SendProtocol(asyncio.DatagramProtocol):
