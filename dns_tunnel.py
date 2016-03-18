@@ -97,6 +97,7 @@ class SendProtocol(asyncio.DatagramProtocol):
         else:
             self.listen_transport.sendto(encrypt(data), self.client_addr)
             logging.info('result sent: ' + byte_2_domain(data[12:]))
+        self.transport.close()
 
 
 class ListenProtocol(asyncio.DatagramProtocol):
