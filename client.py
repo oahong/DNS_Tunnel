@@ -48,9 +48,12 @@ def send_to_server(ws, client_addr, data):
 def receive_data(ws):
     # long running coroutine, receive result from server,
     # then call send_back_to_clent() to send back result
-    while True:
-        data = yield from ws.recv()
-        asyncio.async(send_back_to_client(data))
+    try:
+        while True:
+            data = yield from ws.recv()
+            asyncio.async(send_back_to_client(data))
+    except websockets.exceptions.ConnectionClosed:
+        pass
 
 
 @asyncio.coroutine
@@ -76,6 +79,7 @@ def connect_ws_server(server_addr):
                 # computer wake up from sleep, or network disconnected
                 logging.info('websocket closed, reconnecting...')
                 ws = yield from websockets.connect(server_addr)
+                asyncio.async(receive_data(ws))
                 logging.info('websocket reconnected')
             # let it go background, do not block this loop
             asyncio.async(send_to_server(ws, client_addr, data))
