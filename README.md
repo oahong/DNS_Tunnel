@@ -6,7 +6,7 @@ I write this to fix DNS pollution in China:
 DNS query <--> client <--> encryption <--> server <--> DNS server
 ~~~~~~~~
 
-Require Python 3.4+ and [cryptography](https://cryptography.io/en/latest/). If Python 3.4+ is not available on your server, you could try [pyenv](https://github.com/yyuu/pyenv).
+Require Python 3.4+ and [cryptography](https://cryptography.io/en/latest/). If Python 3.4+ is not available on your server, you could try [pyenv](https://github.com/yyuu/pyenv). You may also want to try the [websocket](https://github.com/radaiming/DNS_Tunnel/tree/websocket) branch.
 
 ## Usage:
 Run the following command to generate new encryption key:
