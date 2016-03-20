@@ -92,7 +92,7 @@ def handle(ws, _):
 
 
 def main():
-    logging.basicConfig(level=logging.INFO,
+    logging.basicConfig(level=logging.ERROR,
                         format='%(asctime)s %(levelname)-8s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
     parser = argparse.ArgumentParser(description='A simple DNS tunnel over websocket')
