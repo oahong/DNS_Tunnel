@@ -49,14 +49,20 @@ class SendProtocol(asyncio.DatagramProtocol):
     def datagram_received(self, data, addr):
         packed_data = self.peername + b'\x00\x00' + data
         logging.info('result sending ' + byte_2_domain(data[12:]))
-        asyncio.async(self.ws.send(packed_data))
+        try:
+            asyncio.async(self.ws.send(packed_data))
+        except websockets.exceptions.ConnectionClosed:
+            logging.info('connection closed when trying to send packet to client')
 
 
 @asyncio.coroutine
 def ping_forever(ws):
-    while True:
-        yield from ws.ping()
-        yield from asyncio.sleep(30)
+    try:
+        while True:
+            yield from ws.ping()
+            yield from asyncio.sleep(30)
+    except websockets.exceptions.ConnectionClosed:
+        logging.info('connection closed, stop ping')
 
 
 @asyncio.coroutine
@@ -78,6 +84,8 @@ def handle(ws, _):
         while True:
             packed_data = yield from ws.recv()
             asyncio.async(lookup_dns(ws, packed_data))
+    except websockets.exceptions.ConnectionClosed as exp:
+        logging.info('connection closed, reason: ' + exp.reason)
     finally:
         ws.close()
 
