@@ -5,6 +5,7 @@
 import argparse
 import asyncio
 import logging
+import os
 import struct
 import sys
 import websockets
@@ -100,9 +101,16 @@ def main():
     parser.add_argument('-p', action='store', dest='bind_port', type=int, default=5353,
                         help='bind to this port, default to 5353')
     args = parser.parse_args(sys.argv[1:])
-    start_server = websockets.serve(handle, args.bind_address, args.bind_port)
+    if 'PORT' in os.environ:
+        # we are probably in heroku environment
+        port = int(os.environ['PORT'])
+        addr = '0.0.0.0'
+    else:
+        port = args.bind_port
+        addr = args.bind_address
+    start_server = websockets.serve(handle, addr, port)
     asyncio.get_event_loop().run_until_complete(start_server)
-    logging.info('listening on %s:%d' % (args.bind_address, args.bind_port))
+    logging.info('listening on %s:%d' % (addr, port))
     asyncio.get_event_loop().run_forever()
 
 
