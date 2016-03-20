@@ -120,6 +120,7 @@ def main():
         loop.run_forever()
     except KeyboardInterrupt:
         pass
+    listen_transport.close()
     loop.close()
 
 
