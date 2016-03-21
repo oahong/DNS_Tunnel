@@ -45,7 +45,7 @@ Very simple:
 ./client.py -c wss://dns-tunnel.herokuapp.com -p 12345
 ~~~~~~~~
 
-Yes, you could try the demo app above, I will keep it unless it's abused. Now test:
+Yes, you could try the demo app above, but it will be online 18 hous per day. Now test:
 
 ~~~~~~~~
 $ dig +short twitter.com @127.0.0.1 -p 12345
