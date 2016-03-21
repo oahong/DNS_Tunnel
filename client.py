@@ -67,27 +67,28 @@ def send_back_to_client(packed_data):
 
 @asyncio.coroutine
 def connect_ws_server(server_addr):
-    ws = yield from websockets.connect(server_addr)
-    asyncio.async(receive_data(ws))
-    logging.info('websocket ready')
-    try:
-        while True:
-            # consumer
+    ws = None
+    while True:
+        # consumer
+        try:
             client_addr, data = yield from query_queue.get()
-            if not ws.open:
-                # websocket will be closed sometimes, like
-                # computer wake up from sleep, or network disconnected
-                logging.info('websocket closed, reconnecting...')
+            if not ws or not ws.open:
+                logging.info('connecting to websocket server...')
                 ws = yield from websockets.connect(server_addr)
+                logging.info('server reconnected')
                 asyncio.async(receive_data(ws))
-                logging.info('websocket reconnected')
             # let it go background, do not block this loop
             asyncio.async(send_to_server(ws, client_addr, data))
-    finally:
-        yield from ws.close()
+        except Exception as exp:
+            # when there's connection issue, there could be many kinds
+            # of exceptions, I don't want to test and write one by one
+            logging.error('connection error: ' + str(exp))
 
 
 class ListenProtocol(asyncio.DatagramProtocol):
+    def __init__(self):
+        logging.info('listening for incoming query')
+
     def connection_made(self, transport):
         global listen_transport
         listen_transport = transport
