@@ -106,9 +106,6 @@ class ListenProtocol(asyncio.DatagramProtocol):
 
 def main():
     global query_queue
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S')
     parser = argparse.ArgumentParser(description='A simple DNS tunnel over websocket')
     parser.add_argument('-c', action='store', dest='server_addr', required=True,
                         help='set server url, like ws://test.com/dns')
@@ -116,7 +113,17 @@ def main():
                         help='bind to this address, default to 127.0.0.1')
     parser.add_argument('-p', action='store', dest='bind_port', type=int, default=5353,
                         help='bind to this port, default to 5353')
+    parser.add_argument('--debug', action='store_true', dest='debug', default=False,
+                        help='enable debug outputing')
     args = parser.parse_args(sys.argv[1:])
+
+    if args.debug:
+        logging_level = logging.DEBUG
+    else:
+        logging_level = logging.INFO
+    logging.basicConfig(level=logging_level,
+                        format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
 
     loop = asyncio.get_event_loop()
     query_queue = asyncio.Queue(loop=loop)

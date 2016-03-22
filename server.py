@@ -97,14 +97,13 @@ def handle(ws, _):
 
 
 def main():
-    logging.basicConfig(level=logging.INFO,
-                        format='%(asctime)s %(levelname)-8s %(message)s',
-                        datefmt='%Y-%m-%d %H:%M:%S')
     parser = argparse.ArgumentParser(description='A simple DNS tunnel over websocket')
     parser.add_argument('-b', action='store', dest='bind_address', default='127.0.0.1',
                         help='bind to this address, default to 127.0.0.1')
     parser.add_argument('-p', action='store', dest='bind_port', type=int, default=5353,
                         help='bind to this port, default to 5353')
+    parser.add_argument('--debug', action='store_true', dest='debug', default=False,
+                        help='enable debug outputing')
     args = parser.parse_args(sys.argv[1:])
     if 'PORT' in os.environ:
         # we are probably in heroku environment
@@ -113,6 +112,13 @@ def main():
     else:
         port = args.bind_port
         addr = args.bind_address
+    if args.debug:
+        logging_level = logging.DEBUG
+    else:
+        logging_level = logging.INFO
+    logging.basicConfig(level=logging_level,
+                        format='%(asctime)s %(levelname)-8s %(message)s',
+                        datefmt='%Y-%m-%d %H:%M:%S')
     start_server = websockets.serve(handle, addr, port)
     asyncio.get_event_loop().run_until_complete(start_server)
     logging.info('listening on %s:%d' % (addr, port))
