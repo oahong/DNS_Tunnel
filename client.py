@@ -78,9 +78,12 @@ def connect_ws_server(server_addr):
         try:
             client_addr, data = yield from query_queue.get()
             if not ws or not ws.open:
-                logging.info('connecting to websocket server...')
+                if not ws:
+                    logging.info('connecting to server...')
+                else:
+                    logging.info('lost connection to server, reconnecting...')
                 ws = yield from websockets.connect(server_addr)
-                logging.info('server reconnected')
+                logging.info('server connected')
                 asyncio_ensure_future(receive_data(ws))
             # let it go background, do not block this loop
             asyncio_ensure_future(send_to_server(ws, client_addr, data))
