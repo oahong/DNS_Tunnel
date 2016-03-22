@@ -10,6 +10,11 @@ import struct
 import sys
 import websockets
 
+try:
+    asyncio_ensure_future = asyncio.ensure_future
+except AttributeError:
+    asyncio_ensure_future = asyncio.async
+
 DNS_SERVER = ('8.8.8.8', 53)
 
 
@@ -51,7 +56,7 @@ class SendProtocol(asyncio.DatagramProtocol):
         packed_data = self.peername + b'\x00\x00' + data
         logging.info('result sending ' + byte_2_domain(data[12:]))
         try:
-            asyncio.async(self.ws.send(packed_data))
+            asyncio_ensure_future(self.ws.send(packed_data))
         except websockets.exceptions.ConnectionClosed:
             logging.info('connection closed when trying to send packet to client')
 
@@ -68,7 +73,7 @@ def ping_forever(ws):
 
 @asyncio.coroutine
 def lookup_dns(ws, packed_data):
-    asyncio.async(asyncio.get_event_loop().create_datagram_endpoint(
+    asyncio_ensure_future(asyncio.get_event_loop().create_datagram_endpoint(
         lambda: SendProtocol(ws, packed_data),
         None,
         DNS_SERVER
@@ -80,11 +85,11 @@ def handle(ws, _):
     # this coroutine will be called when a new connection comes in
     # the remote_address is somewhat meaningless if proxyed by nginx
     logging.info('incoming connection from ' + str(ws.remote_address))
-    asyncio.async(ping_forever(ws))
+    asyncio_ensure_future(ping_forever(ws))
     try:
         while True:
             packed_data = yield from ws.recv()
-            asyncio.async(lookup_dns(ws, packed_data))
+            asyncio_ensure_future(lookup_dns(ws, packed_data))
     except websockets.exceptions.ConnectionClosed as exp:
         logging.info('connection closed, reason: ' + exp.reason)
     finally:

@@ -10,6 +10,11 @@ import struct
 import sys
 import websockets
 
+try:
+    asyncio_ensure_future = asyncio.ensure_future
+except AttributeError:
+    asyncio_ensure_future = asyncio.async
+
 query_queue = None
 listen_transport = None
 
@@ -51,7 +56,7 @@ def receive_data(ws):
     try:
         while True:
             data = yield from ws.recv()
-            asyncio.async(send_back_to_client(data))
+            asyncio_ensure_future(send_back_to_client(data))
     except websockets.exceptions.ConnectionClosed:
         pass
 
@@ -76,9 +81,9 @@ def connect_ws_server(server_addr):
                 logging.info('connecting to websocket server...')
                 ws = yield from websockets.connect(server_addr)
                 logging.info('server reconnected')
-                asyncio.async(receive_data(ws))
+                asyncio_ensure_future(receive_data(ws))
             # let it go background, do not block this loop
-            asyncio.async(send_to_server(ws, client_addr, data))
+            asyncio_ensure_future(send_to_server(ws, client_addr, data))
         except Exception as exp:
             # when there's connection issue, there could be many kinds
             # of exceptions, I don't want to test and write one by one
@@ -96,7 +101,7 @@ class ListenProtocol(asyncio.DatagramProtocol):
     def datagram_received(self, data, client_addr):
         global query_queue
         # producer
-        asyncio.async(query_queue.put((client_addr, data)))
+        asyncio_ensure_future(query_queue.put((client_addr, data)))
 
 
 def main():
@@ -119,8 +124,8 @@ def main():
         ListenProtocol,
         local_addr=(args.bind_address, args.bind_port))
 
-    asyncio.async(listen)
-    asyncio.async(connect_ws_server(args.server_addr))
+    asyncio_ensure_future(listen)
+    asyncio_ensure_future(connect_ws_server(args.server_addr))
     try:
         loop.run_forever()
     except KeyboardInterrupt:
