@@ -49,12 +49,12 @@ class SendProtocol(asyncio.DatagramProtocol):
         # I couldn't find a good way to close the socket,
         # so have to schedule a call to do that
         asyncio.get_event_loop().call_later(3, self.transport.close)
-        logging.info('querying ' + byte_2_domain(self.query_data[12:]))
+        logging.debug('querying ' + byte_2_domain(self.query_data[12:]))
         self.transport.sendto(self.query_data)
 
     def datagram_received(self, data, addr):
         packed_data = self.peername + b'\x00\x00' + data
-        logging.info('result sending ' + byte_2_domain(data[12:]))
+        logging.debug('result sending ' + byte_2_domain(data[12:]))
         try:
             asyncio_ensure_future(self.ws.send(packed_data))
         except websockets.exceptions.ConnectionClosed:
@@ -97,7 +97,7 @@ def handle(ws, _):
 
 
 def main():
-    logging.basicConfig(level=logging.ERROR,
+    logging.basicConfig(level=logging.INFO,
                         format='%(asctime)s %(levelname)-8s %(message)s',
                         datefmt='%Y-%m-%d %H:%M:%S')
     parser = argparse.ArgumentParser(description='A simple DNS tunnel over websocket')

@@ -45,7 +45,7 @@ def send_to_server(ws, client_addr, data):
     # later we could use \x00\x00 to split
     b_client_addr = ('%s:%d' % client_addr).encode('utf-8')
     packed_data = b_client_addr + b'\x00\x00' + data
-    logging.info('querying ' + byte_2_domain(data[12:]))
+    logging.debug('querying ' + byte_2_domain(data[12:]))
     yield from ws.send(packed_data)
 
 
@@ -67,7 +67,7 @@ def send_back_to_client(packed_data):
     b_client_ip, b_client_port = b_client_addr.split(b':')
     client_addr = (b_client_ip.decode('utf-8'), int(b_client_port))
     listen_transport.sendto(data, client_addr)
-    logging.info('result sending: ' + byte_2_domain(data[12:]))
+    logging.debug('result sending: ' + byte_2_domain(data[12:]))
 
 
 @asyncio.coroutine
