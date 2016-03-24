@@ -1,38 +1,58 @@
-# A simple encrypted DNS tunnel
+# A simple DNS tunnel based on WebSocket
 
-I write this to fix DNS pollution in China:
-
-~~~~~~~~
-DNS query <--> client <--> encryption <--> server <--> DNS server
-~~~~~~~~
-
-Require Python 3.4+ and [cryptography](https://cryptography.io/en/latest/). If Python 3.4+ is not available on your server, you could try [pyenv](https://github.com/yyuu/pyenv). You may also want to try the [websocket](https://github.com/radaiming/DNS_Tunnel/tree/websocket) branch.
-
-## Usage:
-Run the following command to generate new encryption key:
+The evil firewall drop UDP packets frequently, so I try to tunnel DNS queries in WebSocket.
 
 ~~~~~~~~
-$ python3 -c 'from cryptography.fernet import Fernet; print(Fernet.generate_key())'
+DNS query <--> client <--> WebSocket <--> server <--> DNS server
 ~~~~~~~~
 
-Then replace the B64_KEY variable in the script. On server, run:
+## Deploy on your server
+Install websockets:
 
 ~~~~~~~~
-$ ./dns_tunnel.py -s -b 0.0.0.0 -p 12345
+pip3 install websockets
 ~~~~~~~~
 
-On client, run:
+Run it:
 
 ~~~~~~~~
-$ ./dns_tunnel.py -c 1.2.3.4:12345 -p 23456
+./server.py -p 9999
 ~~~~~~~~
 
-Remember to replace 1.2.3.4 to your server's IP. Now test:
+Now it's listening on localhost 9999, next to config nginx, add a location for it:
 
 ~~~~~~~~
-$ dig +short twitter.com @127.0.0.1 -p 23456
+location /shining_tunnel {
+    proxy_pass http://127.0.0.1:9999;
+    proxy_http_version 1.1;
+    proxy_set_header Upgrade $http_upgrade;
+    proxy_set_header Connection "upgrade";
+}
+~~~~~~~~
+Please use HTTPS, not only for security, but also to avoid possible breakage caused by ISP's performance tuning on HTTP.
+
+## Deploy on Heroku
+Clone this branch(websocket), then push:
+
+~~~~~~~~
+git push heroku websocket:master
+~~~~~~~~
+
+## Run client
+Very simple:
+
+~~~~~~~~
+./client.py -c wss://dns-tunnel.herokuapp.com -p 12345
+~~~~~~~~
+
+Yes, you could try the demo app above, but it will be online 18 hous per day. Now test:
+
+~~~~~~~~
+$ dig +short twitter.com @127.0.0.1 -p 12345
+199.59.150.7
+199.59.149.230
 199.59.150.39
-199.59.148.82
-199.59.148.10
 199.59.149.198
 ~~~~~~~~
+
+Huge thanks to the [WebSockets](https://github.com/aaugustin/websockets) project!
