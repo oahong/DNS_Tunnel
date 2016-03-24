@@ -1,6 +1,6 @@
 # A simple DNS tunnel based on WebSocket
 
-The evil firewall drop UDP packets frequently, so I try to tunnel DNS queries in WebSocket.
+I write this to fix DNS pollution in China:
 
 ~~~~~~~~
 DNS query <--> client <--> WebSocket <--> server <--> DNS server
@@ -32,10 +32,10 @@ location /shining_tunnel {
 Please use HTTPS, not only for security, but also to avoid possible breakage caused by ISP's performance tuning on HTTP.
 
 ## Deploy on Heroku
-Clone this branch(websocket), then push:
+Clone this branch, then push:
 
 ~~~~~~~~
-git push heroku websocket:master
+git push heroku master
 ~~~~~~~~
 
 ## Run client
