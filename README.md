@@ -55,4 +55,46 @@ $ dig +short twitter.com @127.0.0.1 -p 12345
 199.59.149.198
 ~~~~~~~~
 
+## Running inside docker containers
+
+### Building a docker image
+
+~~~~~~~~
+$ docker build -t dnstunnel:latest .
+~~~~~~~~
+
+### Running as a server
+
+~~~~~~~~
+$ docker run -d --env mode=server --name=dserver -P dnstunnel:latest -b 0.0.0.0
+~~~~~~~~
+
+Please follow instructions above to set up nginx as an SSL termination.
+To make fixed port mappings either on server or client, replace **-P/--publish-all** with **-p/--publish** [option](https://docs.docker.com/engine/reference/run/#expose-incoming-ports).
+Otherwise you need to run `docker port` to get the port mappings.
+
+### Running as a client
+
+~~~~~~~~
+$ docker run -d --name=dclient -P dnstunnel:latest -c wss://test.com/shining_tunnel -d
+~~~~~~~~
+
+### Get port mappings
+
+Running [docker port](https://docs.docker.com/engine/reference/run/) to find out the port mappings.
+
+~~~~~~~~
+# server side
+$ docker port dserver
+5353/tcp -> 0.0.0.0:32770
+5353/udp -> 0.0.0.0:32770
+
+# client side
+$ docker port dclient
+5353/tcp -> 0.0.0.0:32775
+5353/udp -> 0.0.0.0:32775
+~~~~~~~~
+
+You should be able to send DNS requests to client port.
+
 Huge thanks to the [WebSockets](https://github.com/aaugustin/websockets) project!
