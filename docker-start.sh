@@ -3,17 +3,13 @@
 set -e
 
 # use client mode by default
-mode=${mode:-client}
-script=client.py
+[[ $mode == client ]] || [[ $mode == server ]] || mode=client
 defaultopts="-b 0.0.0.0"
+script=${mode}.py
 
 if [[ ! -f /.dockerinit ]] ; then
 	echo "You're supposed to run $0 in docker containers"
 	exit 1
-fi
-
-if [[ $mode == server ]] ; then
-	script=server.py
 fi
 
 if [[ $# -lt 1 ]] ; then
