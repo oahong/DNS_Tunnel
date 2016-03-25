@@ -23,7 +23,7 @@ The wrapper support both server a/ client mode.
 You can change the mode by specify --env \$mode to docker run command.
 
 EOF
-	set -- --help  
+	set -- --help
 fi
 
 # we should bind 0.0.0.0 in docker containers
