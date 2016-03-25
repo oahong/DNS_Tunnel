@@ -71,7 +71,7 @@ $ docker run -d --env mode=server --name=dserver -P dnstunnel:latest -b 0.0.0.0
 
 Please follow instructions above to set up nginx as an SSL termination.
 To make fixed port mappings either on server or client, replace **-P/--publish-all** with **-p/--publish** [option](https://docs.docker.com/engine/reference/run/#expose-incoming-ports).
-Otherwise you need to run `docker port` to get the port mappings.
+Otherwise you need to run `docker port` to figure out which port is actually listen on the host.
 
 ### Running as a client
 
